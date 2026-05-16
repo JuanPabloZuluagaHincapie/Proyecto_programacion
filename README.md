@@ -60,6 +60,7 @@ Al iniciar la aplicación por primera vez, el sistema ejecuta de forma automáti
   2. Valida la seguridad de la contraseña con `LibreriaMetodos.comprobarContrasenya()`, exigiendo una longitud mínima de 3 caracteres mediante expresiones regulares (`Regex`). Si todo es correcto, se inserta el registro con el rol "Cliente".
 
 ![Pantalla de Login y Registro](img/captura_login.png)
+![Pantalla de Login y Registro2](img/captura_login2.png)
 
 ---
 
