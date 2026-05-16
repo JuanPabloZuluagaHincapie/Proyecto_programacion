@@ -1,4 +1,4 @@
-# Sistema de Gestión de Hamburguesería 🍔
+# Sistema de Gestión de Hamburguesería 
 
 Este proyecto consiste en una aplicación de escritorio interactiva y robusta desarrollada para el módulo de **Programación**. El sistema permite centralizar los procesos de un restaurante de comida rápida, permitiendo la interacción directa de los consumidores con el catálogo de productos y ofreciendo un panel administrativo protegido para la gestión del negocio.
 
@@ -86,3 +86,14 @@ Al iniciar sesión con el rol de "Administrador", la aplicación bloquea el ento
 3. **Depuración del Catálogo:** Del mismo modo que con los usuarios, el administrador dispone de herramientas de baja comercial para eliminar del catálogo cualquier producto que ya no se vaya a ofertar. Al ejecutar `eliminarProducto()`, las restricciones de Claves Foráneas (`FK`) configuradas en cascada en MySQL se encargan de borrar automáticamente los registros de las subtablas vinculadas, manteniendo la base de datos limpia y sin datos huérfanos.
 
 ![Flujo del Módulo de Administración](img/captura_admin.png)
+
+### B. Modelo Entidad-Relación (MySQL)
+La base de datos se encuentra completamente normalizada en Tercera Forma Normal (3FN), optimizada para implementar una estrategia de herencia de tablas (Class Table Inheritance) que coincide de forma exacta con la arquitectura orientada a objetos de Java.
+
+* **Estrategia de Herencia Alimentaria:** Existe una tabla base denominada `productos` que centraliza los atributos comunes (`idProducto`, `nombre`, `precio`, `descripcion`). Las subtablas específicas (`hamburguesas`, `bebidas` y `extras`) mapean las subclases correspondientes de Java. La Clave Primaria (`PK`) de cada una de estas subtablas actúa simultáneamente como una Clave Foránea (`FK`) directa referenciada hacia `productos.idProducto`, aplicando restricciones referenciales de borrado y modificación en cascada (`ON DELETE CASCADE` / `ON UPDATE CASCADE`).
+* **Estructura Transaccional de Pedidos:** * La tabla `usuario` almacena las credenciales de clientes y administradores de forma centralizada.
+    * La tabla `pedidos` registra la cabecera general de cada orden generada, vinculándose con una relación de uno a muchos (`1:N`) hacia la tabla `usuario` mediante el campo `idUsuario`.
+    * Para solucionar la relación de muchos a muchos (`N:M`) entre los pedidos y el catálogo comercial, se diseñó la tabla intermedia y asociativa `detalle_pedido`. Esta desglosa cada ítem de manera unitaria conectando las claves foráneas independientes `idPedido` e `idProducto`, permitiendo auditorías rigurosas y un cálculo exacto del campo `total`.
+* **Gestión de Transacciones de Seguridad:** Al confirmar una orden en el método `AccessDB.guardarPedido()`, el sistema utiliza de forma explícita `con.setAutoCommit(false)`. Si ocurre cualquier tipo de excepción o fallo imprevisto durante la inserción masiva en bucle de los registros dentro de `detalle_pedido`, se dispara inmediatamente un bloque `con.rollback()`. Esto garantiza la atomicidad de la base de datos (ACID), impidiendo de forma absoluta que queden registros huérfanos o pedidos incompletos en el servidor.
+
+![Diagrama Entidad Relación de MySQL](img/diagrama_er.png)
